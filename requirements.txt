@@ -1,0 +1,6 @@
+ddgs
+newspaper3k
+sentence-transformers
+torch
+ollama
+playwright
