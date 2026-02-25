@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Industry Tool Architecture Concepts</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Jura:wght@400;600&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* Unreal Engine / Cyberpunk inspired dark aesthetic */
+            --bg: #0a0e17;
+            --surface: #121826;
+            --surface-elevated: #1a2235;
+            --border: #2a3655;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+
+            --accent-ue: #0e85ff;
+            --accent-blender: #ea7600;
+            --accent-houdini: #ffb81c;
+            --accent-neon: #00f0ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Jura', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-image:
+                linear-gradient(rgba(14, 133, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 133, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        header {
+            margin-bottom: 5rem;
+            border-left: 4px solid var(--accent-neon);
+            padding-left: 2rem;
+        }
+
+        h1 {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 1rem 0;
+            color: var(--text);
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-neon);
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Concept Card Container */
+        .concept {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 5rem;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .concept-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .concept-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .concept-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--text-dim);
+        }
+
+        /* Concept 1: Asset Scavenger (Orange/Blender theme) */
+        .c1 {
+            border-top: 3px solid var(--accent-blender);
+        }
+
+        .c1 .concept-title {
+            color: var(--accent-blender);
+        }
+
+        .c1 .pipe-step.highlight {
+            border-color: var(--accent-blender);
+            box-shadow: 0 0 15px rgba(234, 118, 0, 0.2);
+        }
+
+        .c1 .step-num {
+            color: var(--accent-blender);
+        }
+
+        /* Concept 2: Tech Art Oracle (Blue/UE theme) */
+        .c2 {
+            border-top: 3px solid var(--accent-ue);
+        }
+
+        .c2 .concept-title {
+            color: var(--accent-ue);
+        }
+
+        .c2 .pipe-step.highlight {
+            border-color: var(--accent-ue);
+            box-shadow: 0 0 15px rgba(14, 133, 255, 0.2);
+        }
+
+        .c2 .step-num {
+            color: var(--accent-ue);
+        }
+
+        /* Concept 3: Studio Intel (Gold/Houdini theme) */
+        .c3 {
+            border-top: 3px solid var(--accent-houdini);
+        }
+
+        .c3 .concept-title {
+            color: var(--accent-houdini);
+        }
+
+        .c3 .pipe-step.highlight {
+            border-color: var(--accent-houdini);
+            box-shadow: 0 0 15px rgba(255, 184, 28, 0.2);
+        }
+
+        .c3 .step-num {
+            color: var(--accent-houdini);
+        }
+
+        .concept-body {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 3rem;
+        }
+
+        .problem-statement {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+        }
+
+        .problem-statement h4 {
+            color: var(--text);
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .pipeline-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .pipe-step {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border-radius: 4px;
+            height: 100%;
+            position: relative;
+        }
+
+        .step-num {
+            font-family: 'Fira Code', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            opacity: 0.3;
+            position: absolute;
+            top: -15px;
+            left: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-align: left;
+        }
+
+        /* Arrow connectors between steps */
+        .pipe-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--border);
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        /* Output box below the pipeline */
+        .output-box {
+            margin-top: 2rem;
+            background: #000;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #a5d6ff;
+        }
+
+        .output-label {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        @media (max-width: 1100px) {
+            .concept-body {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .pipeline-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .pipe-step:nth-child(3)::after {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pipeline-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pipe-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -20px;
+                transform: translateX(50%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>3D Industry Agent Pivots</h1>
+            <p class="subtitle">Adapting the LLM-Scraper Architecture for Pipelines & Production</p>
+        </header>
+
+        <!-- CONCEPT 1: ASSET SCAVENGER -->
+        <div class="concept c1">
+            <div class="concept-header">
+                <h2 class="concept-title">1. Automated Asset Scavenger</h2>
+                <span class="concept-tag">ENVIRONMENT & LOOKDEV</span>
+            </div>
+            <div class="concept-body">
+                <div class="problem-statement">
+                    <h4>The Bottleneck</h4>
+                    <p>Environment artists spend hours digging through Poly Haven, TurboSquid, Sketchfab, and forums
+                        looking for specific PBR textures, HDRIs, or base meshes with suitable commercial licenses.</p>
+                </div>
+                <div class="architecture">
+                    <div class="pipeline-grid">
+                        <div class="pipe-step">
+                            <span class="step-num">01</span>
+                            <div class="step-title">Intent Planner</div>
+                            <div class="step-desc">Expands visual prompt into technical search queries (e.g. "worn red
+                                brick seamless 4k site:polyhaven.com")</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">02</span>
+                            <div class="step-title">Search APIs</div>
+                            <div class="step-desc">Hits targeted indexes (ArtStation, Sketchfab, private studio
+                                libraries if indexed).</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">03</span>
+                            <div class="step-title">Playwright Scrape</div>
+                            <div class="step-desc">Extracts asset descriptions, topology stats (polycount), and crucial
+                                <strong>License Types</strong> (CC0, CC-BY).</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">04</span>
+                            <div class="step-title">Semantic Filter</div>
+                            <div class="step-desc">Compares scraped mesh/material tags against the artist's original
+                                prompt to filter out irrelevant hits.</div>
+                        </div>
+                        <div class="pipe-step highlight">
+                            <span class="step-num">05</span>
+                            <div class="step-title">Curated Output</div>
+                            <div class="step-desc">Synthesizes a structured list of vetted direct-download links
+                                organized by licensing.</div>
+                        </div>
+                    </div>
+                    <div class="output-box">
+                        <span class="output-label">Final Output (JSON/Markdown)</span>
+                        [CC0 - FREE COMMERCIAL]<br>
+                        - Worn Victorian Brick (8K PBR): https://polyhaven.com/...<br>
+                        - Industrial Factory Wall Material: https://ambientcg.com/...<br>
+                        <br>
+                        [PAID / ROYALTIES APPLY]<br>
+                        - 3D Scanned Crumbling Brick (TurboSquid - $15): ...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONCEPT 2: TECH ART ORACLE -->
+        <div class="concept c2">
+            <div class="concept-header">
+                <h2 class="concept-title">2. Tech Art Troubleshooting Oracle</h2>
+                <span class="concept-tag">PIPELINE & TD SUPPORT</span>
+            </div>
+            <div class="concept-body">
+                <div class="problem-statement">
+                    <h4>The Bottleneck</h4>
+                    <p>Technical Directors face obscure stack traces in Maya/Houdini/UE5. The solutions are buried in
+                        10-year-old Reddit threads, GitHub issues, or Unreal Engine forum arguments.</p>
+                </div>
+                <div class="architecture">
+                    <div class="pipeline-grid">
+                        <div class="pipe-step">
+                            <span class="step-num">01</span>
+                            <div class="step-title">Log Parsing</div>
+                            <div class="step-desc">Accepts raw crash logs or cryptic errors ("V-Ray UNHANDLED EXCEPTION
+                                in render thread").</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">02</span>
+                            <div class="step-title">Targeted Search</div>
+                            <div class="step-desc">Queries restrict to specific domains (forums.unrealengine.com,
+                                github.com, stackoverflow.com).</div>
+                        </div>
+                        <div class="pipe-step highlight">
+                            <span class="step-num">03</span>
+                            <div class="step-title">Deep Scrape</div>
+                            <div class="step-desc">Playwright loads full multi-page forum threads and expands hidden
+                                comments to capture the entire discussion context.</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">04</span>
+                            <div class="step-title">Context Filter</div>
+                            <div class="step-desc">Ranks threads specifically matching the user's DCC version and
+                                Operating System.</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">05</span>
+                            <div class="step-title">Solution Extractor</div>
+                            <div class="step-desc">LLM identifies the actual working solution ("Edit: fixed it by...")
+                                ignoring the noise.</div>
+                        </div>
+                    </div>
+                    <div class="output-box" style="color: #a5d6ff;">
+                        <span class="output-label">Final Output (Actionable Steps)</span>
+                        ROOT CAUSE: V-Ray is running out of GPU VRAM while calculating displacement.<br><br>
+                        WORKAROUND STEPS:<br>
+                        1. Go to V-Ray Settings > Geometry > Displacement<br>
+                        2. Disable "Use Object Material"<br>
+                        3. Lower edge length from 4 to 2.<br><br>
+                        Source: https://forums.chaos.com/thread/... (User 'render_guy94' confirmed fix in Maya 2024)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONCEPT 3: STUDIO INTEL -->
+        <div class="concept c3">
+            <div class="concept-header">
+                <h2 class="concept-title">3. Competitor Intelligence Tracker</h2>
+                <span class="concept-tag">BI & BIZ DEV</span>
+            </div>
+            <div class="concept-body">
+                <div class="problem-statement">
+                    <h4>The Bottleneck</h4>
+                    <p>Game outsourcing studios and ArchViz firms need to know what tech stacks rival studios are
+                        adopting, what talent they are hiring, and what contracts they just won.</p>
+                </div>
+                <div class="architecture">
+                    <div class="pipeline-grid">
+                        <div class="pipe-step">
+                            <span class="step-num">01</span>
+                            <div class="step-title">Topic Planner</div>
+                            <div class="step-desc">Generates daily search queries based on rival studio names + "hiring"
+                                or "portfolio update".</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">02</span>
+                            <div class="step-title">Broad Search</div>
+                            <div class="step-desc">Scans LinkedIn, ArtStation jobs, 80 Level, and industry press
+                                releases.</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">03</span>
+                            <div class="step-title">News Scrape</div>
+                            <div class="step-desc">Extracts job requirement texts and project post-mortems/breakdowns.
+                            </div>
+                        </div>
+                        <div class="pipe-step highlight">
+                            <span class="step-num">04</span>
+                            <div class="step-title">Keyword Filter</div>
+                            <div class="step-desc">Filters heavily for tech stack keywords (UE5, Gaussian Splatting,
+                                Houdini, USD pipeline).</div>
+                        </div>
+                        <div class="pipe-step">
+                            <span class="step-num">05</span>
+                            <div class="step-title">Weekly Report</div>
+                            <div class="step-desc">Synthesizes findings into a high-level briefing for the Studio Head
+                                or Lead TD.</div>
+                        </div>
+                    </div>
+                    <div class="output-box" style="color: #ffdfa5;">
+                        <span class="output-label">Final Output (Intelligence Briefing)</span>
+                        STUDIO: Blur Studio<br>
+                        ACTIVITY: Major shift to Unreal Engine 5 for linear animation detected.<br>
+                        EVIDENCE: <br>
+                        - Posted 3 job listings today requiring "UE5 Sequencer" and "Lumen lighting" experience.<br>
+                        - Published 80Level article breaking down real-time rendering on latest project.<br>
+                        <br>
+                        ACTIONABLE: Competitor is matching our real-time rendering capabilities.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

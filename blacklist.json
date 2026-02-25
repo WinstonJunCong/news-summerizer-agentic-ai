@@ -1,13 +1,1 @@
-{
-  "blocked": [
-    "www.marketwatch.com",
-    "www.msn.com"
-  ],
-  "failures": {
-    "www.msn.com": 2,
-    "celticswire.usatoday.com": 1,
-    "trojanswire.usatoday.com": 1,
-    "seekingalpha.com": 1,
-    "www.marketwatch.com": 2
-  }
-}
+
